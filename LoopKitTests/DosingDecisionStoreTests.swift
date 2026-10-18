@@ -986,6 +986,29 @@ class StoredDosingDecisionCodableTests: XCTestCase {
         XCTAssertEqual(plistDecoded.algorithmExperiments, dosingDecision.algorithmExperiments)
     }
 
+    func testCodableDeviceStatus() throws {
+        var dosingDecision = StoredDosingDecision(date: dateFormatter.date(from: "2020-05-14T22:38:14Z")!,
+                                                  controllerTimeZone: TimeZone(identifier: "America/Los_Angeles")!,
+                                                  reason: "test",
+                                                  syncIdentifier: UUID(uuidString: "2A67A303-5203-4CB8-8263-79498265368E")!)
+        let undecorated = try decoder.decode(StoredDosingDecision.self, from: encoder.encode(dosingDecision))
+        XCTAssertNil(undecorated.cgmStatusHighlight)
+        XCTAssertNil(undecorated.pumpLifecycleProgress)
+        XCTAssertNil(undecorated.cgmLifecycleProgress)
+
+        dosingDecision.cgmStatusHighlight = StoredDosingDecision.StoredDeviceHighlight(localizedMessage: "Sensor Warmup", imageName: "clock", state: .normalCGM)
+        dosingDecision.cgmLifecycleProgress = StoredDosingDecision.StoredDeviceLifecycleProgress(percentComplete: 0.25, progressState: .normalCGM)
+        dosingDecision.pumpLifecycleProgress = StoredDosingDecision.StoredDeviceLifecycleProgress(percentComplete: 0.9, progressState: .warning)
+
+        // DosingDecisionStore persists decisions as property lists
+        for decoded in [try decoder.decode(StoredDosingDecision.self, from: encoder.encode(dosingDecision)),
+                        try PropertyListDecoder().decode(StoredDosingDecision.self, from: PropertyListEncoder().encode(dosingDecision))] {
+            XCTAssertEqual(decoded.cgmStatusHighlight, dosingDecision.cgmStatusHighlight)
+            XCTAssertEqual(decoded.cgmLifecycleProgress, dosingDecision.cgmLifecycleProgress)
+            XCTAssertEqual(decoded.pumpLifecycleProgress, dosingDecision.pumpLifecycleProgress)
+        }
+    }
+
     private func assertStoredDosingDecisionCodable(_ original: StoredDosingDecision, encodesJSON string: String) throws {
         let data = try encoder.encode(original)
         XCTAssertEqual(String(data: data, encoding: .utf8), string)
