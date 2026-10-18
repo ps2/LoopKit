@@ -312,7 +312,10 @@ public struct StoredDosingDecision: DosingDecision {
     public var controllerStatus: ControllerStatus?
     public var pumpManagerStatus: PumpManagerStatus?
     public var pumpStatusHighlight: StoredDeviceHighlight?
+    public var pumpLifecycleProgress: StoredDeviceLifecycleProgress?
     public var cgmManagerStatus: CGMManagerStatus?
+    public var cgmStatusHighlight: StoredDeviceHighlight?
+    public var cgmLifecycleProgress: StoredDeviceLifecycleProgress?
     public var lastReservoirValue: LastReservoirValue?
     public var historicalGlucose: [HistoricalGlucoseValue]?
     public var originalCarbEntry: StoredCarbEntry?
@@ -342,7 +345,10 @@ public struct StoredDosingDecision: DosingDecision {
                 controllerStatus: ControllerStatus? = nil,
                 pumpManagerStatus: PumpManagerStatus? = nil,
                 pumpStatusHighlight: StoredDeviceHighlight? = nil,
+                pumpLifecycleProgress: StoredDeviceLifecycleProgress? = nil,
                 cgmManagerStatus: CGMManagerStatus? = nil,
+                cgmStatusHighlight: StoredDeviceHighlight? = nil,
+                cgmLifecycleProgress: StoredDeviceLifecycleProgress? = nil,
                 lastReservoirValue: LastReservoirValue? = nil,
                 historicalGlucose: [HistoricalGlucoseValue]? = nil,
                 originalCarbEntry: StoredCarbEntry? = nil,
@@ -370,7 +376,10 @@ public struct StoredDosingDecision: DosingDecision {
         self.controllerStatus = controllerStatus
         self.pumpManagerStatus = pumpManagerStatus
         self.pumpStatusHighlight = pumpStatusHighlight
+        self.pumpLifecycleProgress = pumpLifecycleProgress
         self.cgmManagerStatus = cgmManagerStatus
+        self.cgmStatusHighlight = cgmStatusHighlight
+        self.cgmLifecycleProgress = cgmLifecycleProgress
         self.lastReservoirValue = lastReservoirValue
         self.historicalGlucose = historicalGlucose
         self.originalCarbEntry = originalCarbEntry
@@ -446,6 +455,24 @@ public struct StoredDosingDecision: DosingDecision {
             self.imageName = imageName
             self.state = state
         }
+
+        public init(_ highlight: DeviceStatusHighlight) {
+            self.init(localizedMessage: highlight.localizedMessage, imageName: highlight.imageName, state: highlight.state)
+        }
+    }
+
+    public struct StoredDeviceLifecycleProgress: Codable, Equatable, DeviceLifecycleProgress {
+        public var percentComplete: Double
+        public var progressState: DeviceLifecycleProgressState
+
+        public init(percentComplete: Double, progressState: DeviceLifecycleProgressState) {
+            self.percentComplete = percentComplete
+            self.progressState = progressState
+        }
+
+        public init(_ progress: DeviceLifecycleProgress) {
+            self.init(percentComplete: progress.percentComplete, progressState: progress.progressState)
+        }
     }
 }
 
@@ -471,7 +498,10 @@ extension StoredDosingDecision: Codable {
                   controllerStatus: try container.decodeIfPresent(ControllerStatus.self, forKey: .controllerStatus),
                   pumpManagerStatus: try container.decodeIfPresent(PumpManagerStatus.self, forKey: .pumpManagerStatus),
                   pumpStatusHighlight: try container.decodeIfPresent(StoredDeviceHighlight.self, forKey: .pumpStatusHighlight),
+                  pumpLifecycleProgress: try container.decodeIfPresent(StoredDeviceLifecycleProgress.self, forKey: .pumpLifecycleProgress),
                   cgmManagerStatus: try container.decodeIfPresent(CGMManagerStatus.self, forKey: .cgmManagerStatus),
+                  cgmStatusHighlight: try container.decodeIfPresent(StoredDeviceHighlight.self, forKey: .cgmStatusHighlight),
+                  cgmLifecycleProgress: try container.decodeIfPresent(StoredDeviceLifecycleProgress.self, forKey: .cgmLifecycleProgress),
                   lastReservoirValue: try container.decodeIfPresent(LastReservoirValue.self, forKey: .lastReservoirValue),
                   historicalGlucose: try container.decodeIfPresent([HistoricalGlucoseValue].self, forKey: .historicalGlucose),
                   originalCarbEntry: try container.decodeIfPresent(StoredCarbEntry.self, forKey: .originalCarbEntry),
@@ -503,7 +533,10 @@ extension StoredDosingDecision: Codable {
         try container.encodeIfPresent(controllerStatus, forKey: .controllerStatus)
         try container.encodeIfPresent(pumpManagerStatus, forKey: .pumpManagerStatus)
         try container.encodeIfPresent(pumpStatusHighlight, forKey: .pumpStatusHighlight)
+        try container.encodeIfPresent(pumpLifecycleProgress, forKey: .pumpLifecycleProgress)
         try container.encodeIfPresent(cgmManagerStatus, forKey: .cgmManagerStatus)
+        try container.encodeIfPresent(cgmStatusHighlight, forKey: .cgmStatusHighlight)
+        try container.encodeIfPresent(cgmLifecycleProgress, forKey: .cgmLifecycleProgress)
         try container.encodeIfPresent(lastReservoirValue, forKey: .lastReservoirValue)
         try container.encodeIfPresent(historicalGlucose, forKey: .historicalGlucose)
         try container.encodeIfPresent(originalCarbEntry, forKey: .originalCarbEntry)
@@ -534,7 +567,10 @@ extension StoredDosingDecision: Codable {
         case controllerStatus
         case pumpManagerStatus
         case pumpStatusHighlight
+        case pumpLifecycleProgress
         case cgmManagerStatus
+        case cgmStatusHighlight
+        case cgmLifecycleProgress
         case lastReservoirValue
         case historicalGlucose
         case originalCarbEntry
