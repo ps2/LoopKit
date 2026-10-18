@@ -25,4 +25,14 @@ public enum LoopNotificationCategory: String {
     case missedMeal
     case presetReminder
     case requiredUpdate
+    /// A service asking the person to approve a remote command before Loop acts on it.
+    case remoteCommandApproval
+}
+
+/// The answers on a `remoteCommandApproval` alert. A service uses these identifiers for its alert's
+/// `Alert.UserAlertAction`s and receives the person's choice in `AlertResponder.handleAlertAction`,
+/// from the notification, Loop's in-app alert or the watch.
+public enum RemoteCommandApprovalAction: String {
+    case approve = "remoteCommandApprove"
+    case decline = "remoteCommandDecline"
 }
