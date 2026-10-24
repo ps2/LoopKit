@@ -311,6 +311,10 @@ public class PresetsTraining {
         }
         
         public var contentBackground: Color {
+            #if os(watchOS)
+            // No system background colors on watchOS (LoopKit builds there for apps such as LoopCaregiver's watch app).
+            return .black
+            #else
             switch self {
             case .dailyActivities(.commonUses),
                  .exercise(.commonUses),
@@ -319,6 +323,7 @@ public class PresetsTraining {
             default:
                 Color(UIColor.systemBackground)
             }
+            #endif
         }
     }
 
